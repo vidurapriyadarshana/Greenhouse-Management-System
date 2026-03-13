@@ -1,0 +1,877 @@
+{
+	"info": {
+		"_postman_id": "agms-collection-2026",
+		"name": "AGMS - Automated Greenhouse Management System",
+		"description": "Complete API collection for the AGMS microservices project.\n\nStartup Order: service-registry (8761) → config-server (8888) → api-gateway (8080) → domain services\n\nAll requests go through the API Gateway at http://localhost:8080.\nJWT token is required in the Authorization header for all routes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "eureka_url",
+			"value": "http://localhost:8761"
+		},
+		{
+			"key": "config_url",
+			"value": "http://localhost:8888"
+		},
+		{
+			"key": "jwt_token",
+			"value": "your-jwt-token-here"
+		},
+		{
+			"key": "zone_id",
+			"value": ""
+		},
+		{
+			"key": "device_id",
+			"value": ""
+		},
+		{
+			"key": "crop_id",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Infrastructure",
+			"description": "Infrastructure verification endpoints",
+			"item": [
+				{
+					"name": "Eureka Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{eureka_url}}",
+							"host": ["{{eureka_url}}"]
+						}
+					}
+				},
+				{
+					"name": "Eureka - Registered Apps",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{eureka_url}}/eureka/apps",
+							"host": ["{{eureka_url}}"],
+							"path": ["eureka", "apps"]
+						}
+					}
+				},
+				{
+					"name": "Config Server - Zone Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{config_url}}/zone-service/default",
+							"host": ["{{config_url}}"],
+							"path": ["zone-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Config Server - Sensor Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{config_url}}/sensor-service/default",
+							"host": ["{{config_url}}"],
+							"path": ["sensor-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Config Server - Automation Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{config_url}}/automation-service/default",
+							"host": ["{{config_url}}"],
+							"path": ["automation-service", "default"]
+						}
+					}
+				},
+				{
+					"name": "Config Server - Crop Service Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{config_url}}/crop-service/default",
+							"host": ["{{config_url}}"],
+							"path": ["crop-service", "default"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Zone Service",
+			"description": "Zone Management - CRUD operations for greenhouse zones with temperature/humidity thresholds",
+			"item": [
+				{
+					"name": "Create Zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('zone_id', jsonData.data.id);",
+									"    console.log('Zone ID saved: ' + jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Tropical Zone A\",\n    \"minTemp\": 20.0,\n    \"maxTemp\": 35.0,\n    \"minHumidity\": 60.0,\n    \"maxHumidity\": 90.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/zones",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones"]
+						}
+					}
+				},
+				{
+					"name": "Get All Zones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones"]
+						}
+					}
+				},
+				{
+					"name": "Get Zone By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones/{{zone_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones", "{{zone_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Zone",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Tropical Zone A - Updated\",\n    \"minTemp\": 22.0,\n    \"maxTemp\": 38.0,\n    \"minHumidity\": 55.0,\n    \"maxHumidity\": 95.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/zones/{{zone_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones", "{{zone_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Zone",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones/{{zone_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones", "{{zone_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Sensor Service",
+			"description": "Sensor Telemetry - IoT device registration and telemetry data retrieval from external IoT API",
+			"item": [
+				{
+					"name": "Register IoT Device",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.deviceId) {",
+									"    pm.collectionVariables.set('device_id', jsonData.data.deviceId);",
+									"    console.log('Device ID saved: ' + jsonData.data.deviceId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Temperature Sensor 1\",\n    \"zoneId\": \"{{zone_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/sensors/devices",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sensors", "devices"]
+						}
+					}
+				},
+				{
+					"name": "Get Latest Telemetry Readings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/sensors/latest",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sensors", "latest"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Automation Service",
+			"description": "Automation & Control - Process telemetry data against zone thresholds and log automated actions",
+			"item": [
+				{
+					"name": "Process Telemetry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"deviceId\": \"{{device_id}}\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"value\": {\n        \"temperature\": 40.5,\n        \"tempUnit\": \"CELSIUS\",\n        \"humidity\": 85.0,\n        \"humidityUnit\": \"PERCENT\"\n    },\n    \"capturedAt\": \"2026-03-10T10:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/process",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "process"]
+						}
+					}
+				},
+				{
+					"name": "Process Telemetry - Low Temp (Trigger Heating)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"deviceId\": \"{{device_id}}\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"value\": {\n        \"temperature\": 10.0,\n        \"tempUnit\": \"CELSIUS\",\n        \"humidity\": 70.0,\n        \"humidityUnit\": \"PERCENT\"\n    },\n    \"capturedAt\": \"2026-03-10T10:05:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/process",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "process"]
+						}
+					}
+				},
+				{
+					"name": "Process Telemetry - Normal Range (No Action)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"deviceId\": \"{{device_id}}\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"value\": {\n        \"temperature\": 25.0,\n        \"tempUnit\": \"CELSIUS\",\n        \"humidity\": 75.0,\n        \"humidityUnit\": \"PERCENT\"\n    },\n    \"capturedAt\": \"2026-03-10T10:10:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/process",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "process"]
+						}
+					}
+				},
+				{
+					"name": "Get All Automation Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/logs",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "logs"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Crop Service",
+			"description": "Crop Inventory - Crop lifecycle management with state transitions: SEEDLING → VEGETATIVE → FLOWERING → HARVESTING → HARVESTED",
+			"item": [
+				{
+					"name": "Create Crop",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('crop_id', jsonData.data.id);",
+									"    console.log('Crop ID saved: ' + jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Tomato Batch 1\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"quantity\": 100\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops"]
+						}
+					}
+				},
+				{
+					"name": "Get All Crops",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/crops",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops"]
+						}
+					}
+				},
+				{
+					"name": "Update Crop Status - VEGETATIVE",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"VEGETATIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Crop Status - FLOWERING",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"FLOWERING\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Crop Status - HARVESTING",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"HARVESTING\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Crop Status - HARVESTED",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"HARVESTED\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Crop Status - Invalid Transition (should fail)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"SEEDLING\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Cases",
+			"description": "Tests for error handling - 404, 400, 401 responses",
+			"item": [
+				{
+					"name": "Get Non-existent Zone (404)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones/non-existent-id",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones", "non-existent-id"]
+						}
+					}
+				},
+				{
+					"name": "Request Without JWT (401)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones"]
+						}
+					}
+				},
+				{
+					"name": "Request With Invalid JWT (401)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid-token-here"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/zones",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "End-to-End Flow",
+			"description": "Complete end-to-end test flow: Create Zone → Register Device → Fetch Telemetry → Process Automation → Create Crop → Lifecycle",
+			"item": [
+				{
+					"name": "1. Create Zone for E2E Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('zone_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"E2E Test Zone\",\n    \"minTemp\": 18.0,\n    \"maxTemp\": 32.0,\n    \"minHumidity\": 50.0,\n    \"maxHumidity\": 85.0\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/zones",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "zones"]
+						}
+					}
+				},
+				{
+					"name": "2. Register Device in Zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.deviceId) {",
+									"    pm.collectionVariables.set('device_id', jsonData.data.deviceId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"E2E Sensor\",\n    \"zoneId\": \"{{zone_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/sensors/devices",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sensors", "devices"]
+						}
+					}
+				},
+				{
+					"name": "3. Get Latest Telemetry",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/sensors/latest",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "sensors", "latest"]
+						}
+					}
+				},
+				{
+					"name": "4. Process Telemetry (High Temp → Cooling)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"deviceId\": \"{{device_id}}\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"value\": {\n        \"temperature\": 45.0,\n        \"tempUnit\": \"CELSIUS\",\n        \"humidity\": 80.0,\n        \"humidityUnit\": \"PERCENT\"\n    },\n    \"capturedAt\": \"2026-03-10T12:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/process",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "process"]
+						}
+					}
+				},
+				{
+					"name": "5. Get Automation Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/automation/logs",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "automation", "logs"]
+						}
+					}
+				},
+				{
+					"name": "6. Create Crop in Zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('crop_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"E2E Tomatoes\",\n    \"zoneId\": \"{{zone_id}}\",\n    \"quantity\": 50\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops"]
+						}
+					}
+				},
+				{
+					"name": "7. Crop → VEGETATIVE",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"VEGETATIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "8. Crop → HARVESTED",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"HARVESTED\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/api/crops/{{crop_id}}/status",
+							"host": ["{{gateway_url}}"],
+							"path": ["api", "crops", "{{crop_id}}", "status"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
